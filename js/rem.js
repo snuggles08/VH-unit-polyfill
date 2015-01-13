@@ -96,7 +96,7 @@
 	},
 	parseCSS = function() { // replace each set of parentheses with evaluated content
 		for (var i = 0; i < foundProps.length; i++) {
-			css[i] = Math.round(parseFloat((foundProps[i].substr(0, foundProps[i].length - 2) / 143) * vh)) + 'px';
+			css[i] = Math.round(parseFloat((foundProps[i].substr(0, foundProps[i].length - 2) / 100) * vh)) + 'px';
 		}
 		loadCSS();
 	},
@@ -169,7 +169,7 @@
 			vh = '';
 		vh = (function() {
 			var size;
-			size = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+			size = getviewport()[1];
 			return size;
 		}());
 		processLinks();
