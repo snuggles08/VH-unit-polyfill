@@ -68,7 +68,7 @@
 
         if( current !== null && current.length !== 0 ){
             found = found.concat( current ); // save all of the blocks of rules with rem in a property
-            foundProps = foundProps.concat( remCurrent ); // save all of the properties with rem
+            foundProps = foundProps.concat( vhCurrent ); // save all of the properties with rem
         }
     },
 
