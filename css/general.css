@@ -12,7 +12,7 @@ html {
 	width: 100px;
 	height: 100vh;
 }
-p {font-size: 5rem;}
+p {font-size: 5vh;}
 
 /* These styles will only show in REM ready browsers.
    If you're expecting these to be ignored, but see a green box
