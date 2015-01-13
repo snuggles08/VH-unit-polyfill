@@ -1,7 +1,7 @@
 (function (window, undefined) {
     "use strict";
     // test for REM unit support
-    var cssremunit =  function() {
+    var cssvhunit =  function() {
         var div = document.createElement( 'div' );
             div.style.cssText = 'font-size: 1vh;';
 
@@ -53,7 +53,7 @@
 
     matchCSS = function ( sheetCSS, link ) { // collect all of the rules from the xhr response texts and match them to a pattern
         var clean = removeMediaQueries( sheetCSS ).replace(/\/\*[\s\S]*?\*\//g, ''), // remove MediaQueries and comments
-            pattern = /[\w\d\s\-\/\\\[\]:,.'"*()<>+~%#^$_=|@]+\{[\w\d\s\-\/\\%#:!;,.'"*()]+\d*\.?\d+vh[\w\d\s\-\/\\%#:!;,.'"*()]*\}/g, //find selectors that use rem in one or more of their rules
+            pattern = /[\w\d\s\-\/\\\[\]:,.'"*()<>+~%#^$_=|@]+\{[\w\d\s\-\/\\%#:!;,.'"*()]+\d*\.?\d+vh[\w\d\s\-\/\\%#:!;,.'"*()]*\}/g, //find selectors that use vh in one or more of their rules
             current = clean.match(pattern),
             vhPattern =/\d*\.?\d+vh/g,
             vhCurrent = clean.match(vhPattern),
@@ -67,17 +67,17 @@
         }
 
         if( current !== null && current.length !== 0 ){
-            found = found.concat( current ); // save all of the blocks of rules with rem in a property
-            foundProps = foundProps.concat( vhCurrent ); // save all of the properties with rem
+            found = found.concat( current ); // save all of the blocks of rules with vh in a property
+            foundProps = foundProps.concat( vhCurrent ); // save all of the properties with vh
         }
     },
 
     buildCSS = function () { // first build each individual rule from elements in the found array and then add it to the string of rules.
-        var pattern = /[\w\d\s\-\/\\%#:,.'"*()]+\d*\.?\d+vh[\w\d\s\-\/\\%#:!,.'"*()]*[;}]/g; // find properties with rem values in them
+        var pattern = /[\w\d\s\-\/\\%#:,.'"*()]+\d*\.?\d+vh[\w\d\s\-\/\\%#:!,.'"*()]*[;}]/g; // find properties with vh values in them
         for( var i = 0; i < found.length; i++ ){
-            rules = rules + found[i].substr(0,found[i].indexOf("{")+1); // save the selector portion of each rule with a rem value
+            rules = rules + found[i].substr(0,found[i].indexOf("{")+1); // save the selector portion of each rule with a vh value
             var current = found[i].match( pattern );
-            for( var j = 0; j<current.length; j++ ){ // build a new set of with only the selector and properties that have rem in the value
+            for( var j = 0; j<current.length; j++ ){ // build a new set of with only the selector and properties that have vh in the value
                 rules = rules + current[j];
                 if( j === current.length-1 && rules[rules.length-1] !== "}" ){
                     rules = rules + "\n}";
@@ -105,11 +105,11 @@
         var vhcss = document.createElement( 'style' );
         vhcss.setAttribute( 'type', 'text/css' );
         vhcss.id = 'vhReplace';
-        document.getElementsByTagName( 'head' )[0].appendChild( remcss );   // create the new element
+        document.getElementsByTagName( 'head' )[0].appendChild( vhcss );   // create the new element
         if( vhcss.styleSheet ) {
             vhcss.styleSheet.cssText = rules; // IE8 will not support innerHTML on read-only elements, such as STYLE
         } else {
-            remcss.appendChild( document.createTextNode( rules ) );
+            vhcss.appendChild( document.createTextNode( rules ) );
         }
     },
 
@@ -159,7 +159,7 @@
         return css;
     };
 
-    if( !cssremunit() ){ // this checks if the rem value is supported
+    if( !cssvhunit() ){ // this checks if the vh value is supported
         var rules = '', // initialize the rules variable in this scope so it can be used later
             links = isStyleSheet(), // initialize the array holding the sheets urls for use later
             importLinks = [], //initialize the array holding the import sheet urls for use later
@@ -169,10 +169,6 @@
             CSSLinks = [], //initialize array holding css links returned from xhr
             css = [], // initialize the array holding the parsed rules for use later
             vh = '';
-
-        // Notice: rem is a "root em" that means that in case when html element size was changed by css
-        // or style we should not change document.documentElement.fontSize to 1em - only body size should be changed
-        // to 1em for calculation
 
         vh = (function () {
             var size;
