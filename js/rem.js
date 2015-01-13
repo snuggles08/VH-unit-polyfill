@@ -1,7 +1,7 @@
 (function(window, undefined) {
 	"use strict";
 
-	function getViewport() {
+	function getviewport() {
 		var viewPortWidth;
 		var viewPortHeight;
 		// the more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
