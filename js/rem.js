@@ -3,9 +3,9 @@
     // test for REM unit support
     var cssremunit =  function() {
         var div = document.createElement( 'div' );
-            div.style.cssText = 'font-size: 1rem;';
+            div.style.cssText = 'font-size: 1vh;';
 
-        return (/rem/).test(div.style.fontSize);
+        return (/vh/).test(div.style.fontSize);
     },
 
     // filter returned links for stylesheets
@@ -14,7 +14,7 @@
             filteredLinks = [];
 
         for ( var i = 0; i < styles.length; i++) {
-            if ( styles[i].rel.toLowerCase() === 'stylesheet' && styles[i].getAttribute('data-norem') === null ) {
+            if ( styles[i].rel.toLowerCase() === 'stylesheet' && styles[i].getAttribute('data-novh') === null ) {
 
                 filteredLinks.push( styles[i].href );
             }
@@ -53,10 +53,10 @@
 
     matchCSS = function ( sheetCSS, link ) { // collect all of the rules from the xhr response texts and match them to a pattern
         var clean = removeMediaQueries( sheetCSS ).replace(/\/\*[\s\S]*?\*\//g, ''), // remove MediaQueries and comments
-            pattern = /[\w\d\s\-\/\\\[\]:,.'"*()<>+~%#^$_=|@]+\{[\w\d\s\-\/\\%#:!;,.'"*()]+\d*\.?\d+rem[\w\d\s\-\/\\%#:!;,.'"*()]*\}/g, //find selectors that use rem in one or more of their rules
+            pattern = /[\w\d\s\-\/\\\[\]:,.'"*()<>+~%#^$_=|@]+\{[\w\d\s\-\/\\%#:!;,.'"*()]+\d*\.?\d+vh[\w\d\s\-\/\\%#:!;,.'"*()]*\}/g, //find selectors that use rem in one or more of their rules
             current = clean.match(pattern),
-            remPattern =/\d*\.?\d+rem/g,
-            remCurrent = clean.match(remPattern),
+            vhPattern =/\d*\.?\d+vh/g,
+            vhCurrent = clean.match(vhPattern),
             sheetPathPattern = /(.*\/)/,
             sheetPath = sheetPathPattern.exec(link)[0], //relative path to css file specified in @import
             importPattern = /@import (?:url\()?['"]?([^'\)"]*)['"]?\)?[^;]*/gm, //matches all @import variations outlined at: https://developer.mozilla.org/en-US/docs/Web/CSS/@import
@@ -73,7 +73,7 @@
     },
 
     buildCSS = function () { // first build each individual rule from elements in the found array and then add it to the string of rules.
-        var pattern = /[\w\d\s\-\/\\%#:,.'"*()]+\d*\.?\d+rem[\w\d\s\-\/\\%#:!,.'"*()]*[;}]/g; // find properties with rem values in them
+        var pattern = /[\w\d\s\-\/\\%#:,.'"*()]+\d*\.?\d+vh[\w\d\s\-\/\\%#:!,.'"*()]*[;}]/g; // find properties with rem values in them
         for( var i = 0; i < found.length; i++ ){
             rules = rules + found[i].substr(0,found[i].indexOf("{")+1); // save the selector portion of each rule with a rem value
             var current = found[i].match( pattern );
@@ -90,7 +90,7 @@
 
     parseCSS = function () { // replace each set of parentheses with evaluated content
         for( var i = 0; i < foundProps.length; i++ ){
-            css[i] = Math.round( parseFloat(foundProps[i].substr(0,foundProps[i].length-3)*fontSize) ) + 'px';
+            css[i] = Math.round( parseFloat(foundProps[i].substr(0,foundProps[i].length-2)*vh) ) + 'px';
         }
 
         loadCSS();
@@ -102,12 +102,12 @@
                 rules = rules.replace( foundProps[i],css[i] ); // replace old rules with our processed rules
             }
         }
-        var remcss = document.createElement( 'style' );
-        remcss.setAttribute( 'type', 'text/css' );
-        remcss.id = 'remReplace';
+        var vhcss = document.createElement( 'style' );
+        vhcss.setAttribute( 'type', 'text/css' );
+        vhcss.id = 'vhReplace';
         document.getElementsByTagName( 'head' )[0].appendChild( remcss );   // create the new element
-        if( remcss.styleSheet ) {
-            remcss.styleSheet.cssText = rules; // IE8 will not support innerHTML on read-only elements, such as STYLE
+        if( vhcss.styleSheet ) {
+            vhcss.styleSheet.cssText = rules; // IE8 will not support innerHTML on read-only elements, such as STYLE
         } else {
             remcss.appendChild( document.createTextNode( rules ) );
         }
@@ -168,40 +168,17 @@
             preCSS = [], // initialize array that holds css before being parsed
             CSSLinks = [], //initialize array holding css links returned from xhr
             css = [], // initialize the array holding the parsed rules for use later
-            fontSize = '';
+            vh = '';
 
         // Notice: rem is a "root em" that means that in case when html element size was changed by css
         // or style we should not change document.documentElement.fontSize to 1em - only body size should be changed
         // to 1em for calculation
 
-        fontSize = (function () {
-            var doc = document,
-                docElement = doc.documentElement,
-                body = doc.body || doc.createElement('body'),
-                isFakeBody = !doc.body,
-                div = doc.createElement('div'),
-                currentSize = body.style.fontSize,
-                size;
-
-            if ( isFakeBody ) {
-                docElement.appendChild( body );
-            }
-
-            div.style.cssText = 'width:1em; position:absolute; visibility:hidden; padding: 0;';
-
-            body.style.fontSize = '1em';
-
-            body.appendChild( div );
-            size = div.offsetWidth;
-
-            if ( isFakeBody ) {
-                docElement.removeChild( body );
-            }
-            else {
-                body.removeChild( div );
-                body.style.fontSize = currentSize;
-            }
-
+        vh = (function () {
+            var size;
+            
+            size = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+            
             return size;
         }());
 
