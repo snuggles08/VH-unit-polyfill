@@ -9,8 +9,8 @@ html {
 .test {
 	background-color:black !important;
     color: white;
-	width: 5.5rem;
-	height: 5em;
+	width: 100px;
+	height: 100vh;
 }
 p {font-size: 5rem;}
 
@@ -20,7 +20,7 @@ p {font-size: 5rem;}
 */
 @media screen and (min-width: 480px) {
     p {
-        font-size: 10rem;
+        font-size: 10vh;
     }
     .test {background-color: green;}
 }
